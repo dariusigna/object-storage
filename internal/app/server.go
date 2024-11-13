@@ -1,6 +1,7 @@
 package app
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -12,9 +13,14 @@ import (
 	"github.com/gorilla/mux"
 )
 
+type Storage interface {
+	GetObject(ctx context.Context, bucket, id string) ([]byte, error)
+	PutObject(ctx context.Context, bucket, id string, object []byte) error
+}
+
 // NewServer creates a new HTTP server for the object storage gateway
 func NewServer(
-	storage *gateway.ObjectStorage,
+	storage Storage,
 ) http.Handler {
 	r := mux.NewRouter()
 	addRoutes(
@@ -27,13 +33,13 @@ func NewServer(
 
 func addRoutes(
 	mux *mux.Router,
-	storage *gateway.ObjectStorage,
+	storage Storage,
 ) {
 	mux.Handle("/{bucket}/{id}", handleGetObject(storage)).Methods(http.MethodGet)
 	mux.Handle("/{bucket}/{id}", handlePutObject(storage)).Methods(http.MethodPut)
 }
 
-func handleGetObject(storage *gateway.ObjectStorage) http.Handler {
+func handleGetObject(storage Storage) http.Handler {
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
 			id := mux.Vars(r)["id"]
@@ -63,7 +69,7 @@ func handleGetObject(storage *gateway.ObjectStorage) http.Handler {
 	)
 }
 
-func handlePutObject(storage *gateway.ObjectStorage) http.Handler {
+func handlePutObject(storage Storage) http.Handler {
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
 			id := mux.Vars(r)["id"]

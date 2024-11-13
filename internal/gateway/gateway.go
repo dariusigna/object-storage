@@ -16,6 +16,10 @@ import (
 	"github.com/minio/minio-go/v7/pkg/credentials"
 )
 
+type Registry interface {
+	MatchService(key string) (registry.ServiceMetadata, error)
+}
+
 // NotFoundError is returned when the object is not found in the object storage
 type NotFoundError struct {
 }
@@ -27,11 +31,11 @@ func (n NotFoundError) Error() string {
 
 // ObjectStorage is a gateway to the object storage
 type ObjectStorage struct {
-	registry *registry.Registry
+	registry Registry
 }
 
 // NewObjectStorage creates a new ObjectStorage instance
-func NewObjectStorage(registry *registry.Registry) (*ObjectStorage, error) {
+func NewObjectStorage(registry Registry) (*ObjectStorage, error) {
 	return &ObjectStorage{registry: registry}, nil
 }
 

@@ -10,7 +10,6 @@ import (
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/events"
 	"github.com/docker/docker/api/types/filters"
-	"github.com/moby/moby/client"
 )
 
 const (
@@ -22,15 +21,28 @@ const (
 	MinioSecretKeyVarName = "MINIO_SECRET_KEY"
 )
 
+// DockerClient is an interface for the Docker client
+type DockerClient interface {
+	ContainerList(ctx context.Context, options container.ListOptions) ([]types.Container, error)
+	ContainerInspect(ctx context.Context, containerID string) (types.ContainerJSON, error)
+	Events(ctx context.Context, options events.ListOptions) (<-chan events.Message, <-chan error)
+}
+
+// Registry is an interface for the service registry
+type Registry interface {
+	RegisterService(service registry.ServiceMetadata)
+	DeregisterService(ipAddress string)
+	GetAllServices() []registry.ServiceMetadata
+}
+
 // Registrar listens for docker events and registers/deregisters instances in the registry
 type Registrar struct {
-	dockerClient *client.Client
-	listener     chan *events.Message
-	registry     *registry.Registry
+	dockerClient DockerClient
+	registry     Registry
 }
 
 // NewRegistrar creates a new Registrar instance
-func NewRegistrar(dockerClient *client.Client, registry *registry.Registry) *Registrar {
+func NewRegistrar(dockerClient DockerClient, registry *registry.Registry) *Registrar {
 	return &Registrar{dockerClient: dockerClient, registry: registry}
 }
 
