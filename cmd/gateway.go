@@ -55,6 +55,9 @@ func run() error {
 		IdleTimeout:  30 * time.Second,
 	}
 
+	// In production, we will add metrics and tracing
+	// with Prometheus, OpenTelemetry further triggering alerts for cases like high latency, high error rate, errors etc.
+
 	// Continuously listen for docker events
 	go instanceRegistrar.ListenForDockerEvents(ctx)
 
