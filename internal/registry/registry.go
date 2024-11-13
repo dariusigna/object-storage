@@ -19,7 +19,7 @@ type ServiceMetadata struct {
 // Registry is a service registry
 type Registry struct {
 	hash      *hash.ConsistentHash                        // The hash and instances can be combined into a single data structure in production
-	instances cmap.ConcurrentMap[string, ServiceMetadata] // This can be database in production
+	instances cmap.ConcurrentMap[string, ServiceMetadata] // This can be database in production, and we can also use a cache
 }
 
 // NewRegistry creates a new registry
