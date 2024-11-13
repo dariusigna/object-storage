@@ -13,6 +13,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// Storage is an interface for the object storage
 type Storage interface {
 	GetObject(ctx context.Context, bucket, id string) ([]byte, error)
 	PutObject(ctx context.Context, bucket, id string, object []byte) error
